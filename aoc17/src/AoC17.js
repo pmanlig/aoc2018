@@ -2,6 +2,9 @@ import React from 'react';
 
 export class AoC17 extends React.Component {
 	static classes = ["spring", "sand", "clay", "falling", "water"];
+	static red = [0, 244, 165, 135, 0];
+	static green = [0, 164, 42, 206, 0];
+	static blue = [128, 96, 42, 250, 255];
 	state = { input: "", minx: 0, maxx: 0, miny: 0, maxy: 0 }
 	grid = [[]];
 
@@ -67,6 +70,7 @@ export class AoC17 extends React.Component {
 			}
 		});
 		this.setState({ minx: bounds[0], maxx: bounds[1], miny: bounds[2], maxy: bounds[3], instructions: instructions });
+		this.updateCanvas();
 	}
 
 	static Cell(props) {
@@ -114,11 +118,10 @@ export class AoC17 extends React.Component {
 
 	fill() {
 		window.setTimeout(() => {
-			console.log("Filling");
 			this.put(500, 0, 0);
 			this.drop(500, 1);
 			this.setState({});
-			console.log("Done");
+			this.updateCanvas();
 		}, 1);
 	}
 
@@ -138,8 +141,21 @@ export class AoC17 extends React.Component {
 		return r;
 	}
 
+	updateCanvas() {
+		const ctx = this.refs.canvas.getContext('2d');
+		var image = ctx.createImageData(this.grid[0].length, this.grid.length);
+		var imgPtr = 0;
+		for (var r=0; r<this.grid.length; r++)
+		  for (var c=0; c<this.grid[0].length; c++) {
+				image.data[imgPtr++] = AoC17.red[this.grid[r][c]];
+				image.data[imgPtr++] = AoC17.green[this.grid[r][c]];
+				image.data[imgPtr++] = AoC17.blue[this.grid[r][c]];
+				image.data[imgPtr++] = 255;
+			}
+		ctx.putImageData(image, 0, 0);
+	}
+
 	render() {
-		var row = 0;
 		return <div className="main">
 			<div>
 				<p>Input:</p>
@@ -147,15 +163,13 @@ export class AoC17 extends React.Component {
 			</div>
 			<div>
 				<p>Result:</p>
-				<div className="grid">
-					{this.grid.slice(0, 500).map(r => <AoC17.Row key={row++} data={r} />)}
-				</div>
+				<canvas ref="canvas" width={this.grid[0].length} height={this.grid.length} onLoad={e => this.updateCanvas()}/>
 			</div>
 			<div>
 				<p>Data:</p>
 				<p>Instructions: {this.state.instructions ? this.state.instructions.length : 0}</p>
 				<p>X: {this.state.minx} - {this.state.maxx}<br />Y: {this.state.miny} - {this.state.maxy}</p>
-				<p>{this.grid.length} x {this.grid[0].length}</p>
+				<p>{this.grid[0].length} x {this.grid.length}</p>
 				<p>Can reach {this.reach()}, retains {this.retain()}</p>
 				<input type="button" value="Fill" onClick={e => this.fill()} />
 			</div>
