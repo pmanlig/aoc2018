@@ -157,15 +157,15 @@ export class AoC17 extends React.Component {
 
 	render() {
 		return <div className="main">
-			<div>
+			<div className="column">
 				<p>Input:</p>
 				<textarea rows="40" cols="50" value={this.state.input} readOnly />
 			</div>
-			<div>
+			<div className="column">
 				<p>Result:</p>
 				<canvas ref="canvas" width={this.grid[0].length} height={this.grid.length} onLoad={e => this.updateCanvas()}/>
 			</div>
-			<div>
+			<div className="column">
 				<p>Data:</p>
 				<p>Instructions: {this.state.instructions ? this.state.instructions.length : 0}</p>
 				<p>X: {this.state.minx} - {this.state.maxx}<br />Y: {this.state.miny} - {this.state.maxy}</p>

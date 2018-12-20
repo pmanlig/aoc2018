@@ -1,4 +1,3 @@
-import './App.css';
 import React from 'react';
 
 class Fact {
@@ -171,13 +170,13 @@ export class AoC16 extends React.Component {
 	runProgram(knownOps) {
 		var registers = [0,0,0,0];
 		this.state.program.forEach(l => {
-			knownOps.find(o => o.code == l[0]).exec(registers,l);
+			knownOps.find(o => o.code === l[0]).exec(registers,l);
 		});
 		this.setState({result: registers});
 	}
 
 	render() {
-		return <div style={{ margin: 5, display: "flex" }}>
+		return <div class="main" style={{ margin: 5, display: "flex", flexDirection: "row" }}>
 			<div style={{ marginLeft: 10 }}>
 				<h3>Facts:</h3>
 				{this.state.data.map(f => <p>[{f.before.join()}] + [{f.data.join()}] = [{f.after.join()}]</p>)}
