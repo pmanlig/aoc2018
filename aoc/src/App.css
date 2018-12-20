@@ -34,9 +34,10 @@
 .main {
   display: flex;
   flex-direction: row;
+  margin: 10px 0 10px 0;
 }
 
-.column {
+.main > div {
   margin: 0;
   margin-left: 5px;
   padding: 0;
@@ -61,4 +62,63 @@
 
 .spacer {
   flex-grow: 1;
+}
+
+.grid {
+  display: flex;
+  flex-direction: column;
+}
+
+.row {
+  display: flex;
+  flex-direction: row;
+}
+
+.cell {
+  max-height: 20px;
+  max-width: 20px;
+  min-height: 20px;
+  min-width: 20px;
+  height: 20px;
+  width: 20px;
+  background-color: white;
+  display: absolute;
+}
+
+.wall {
+  background-color: black;
+}
+
+.wallHoriz {
+  position: relative;
+  top: 10px;
+  height: 2px;
+  width: 20px;
+  background-color: black;
+}
+
+.doorHoriz {
+  position: relative;
+  top: 6px;
+  left: 4px;
+  height: 6px;
+  width: 12px;
+  background-color: brown;
+}
+
+.wallVert {
+  position: relative;
+  left: 10px;
+  height: 20px;
+  width: 2px;
+  background-color: black;
+}
+
+.doorVert {
+  position: relative;
+  top: -16px;
+  left: 8px;
+  height: 12px;
+  width: 6px;
+  background-color: brown;
 }
