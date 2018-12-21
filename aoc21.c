@@ -234,11 +234,17 @@ void execute(int limit) {
             break;
         }
         if (ip == 28) {
-            printf("Halt on: %d\n", mem[p[ip][1]]);
+            if (c%1000==0) printf("%d solutions calculated\n",c);
+            for (int i=0; i < c; i++)
+                if (mem[p[ip][1]]==cand[i]) {
+                    printf("Solution found; solution %d is repeated after %d iterations, previous solution is %d\n", mem[p[ip][1]], c, cand[c-1]);
+                    return;;
+                }
+            if (c==MAX_ANSWERS) {
+                printf("Could not find solution...\n");
+                return;
+            }
             cand[c++] = mem[p[ip][1]];
-            for (int i=0; i < MAX_ANSWERS && i < c-1; i++)
-                if (cand[i]==cand[c]) break;
-            if (c==MAX_ANSWERS) break;
         }
         mem[ipr] = ip;
         if (optimize) {
@@ -296,14 +302,13 @@ void main() {
         if ('\n'==b) lines++;
     }
     // list();
+    calc();
     // for (int i=0; i<l; i++) printf("%s %d %d %d\n",map[p[i][0]], p[i][1], p[i][2], p[i][3]);
     // mem[0]=1;
     // optimize=1;
     // execute(-1);
-    // execute(20);
     // debug();
     // printf("%d lines of input read\n", lines);
     // printf(ip < l ? "FAIL\n" : "OK\n");
-    calc();
     printf("Time to complete: %lfs\n",clock()/(double)CLOCKS_PER_SEC);
 }
