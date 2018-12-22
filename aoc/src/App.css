@@ -40,7 +40,14 @@
 .main > div {
   margin: 0;
   margin-left: 5px;
-  padding: 0;
+	padding: 0;
+	display: block;
+	text-align: left;
+}
+
+.main > div > p {
+	margin: 3px;
+	padding: 0;
 }
 
 .button {
@@ -121,4 +128,8 @@
   height: 12px;
   width: 6px;
   background-color: brown;
+}
+
+button {
+	height: 20px;
 }

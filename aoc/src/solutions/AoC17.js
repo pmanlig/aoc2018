@@ -145,8 +145,8 @@ export class AoC17 extends React.Component {
 		const ctx = this.refs.canvas.getContext('2d');
 		var image = ctx.createImageData(this.grid[0].length, this.grid.length);
 		var imgPtr = 0;
-		for (var r=0; r<this.grid.length; r++)
-		  for (var c=0; c<this.grid[0].length; c++) {
+		for (var r = 0; r < this.grid.length; r++)
+			for (var c = 0; c < this.grid[0].length; c++) {
 				image.data[imgPtr++] = AoC17.red[this.grid[r][c]];
 				image.data[imgPtr++] = AoC17.green[this.grid[r][c]];
 				image.data[imgPtr++] = AoC17.blue[this.grid[r][c]];
@@ -163,7 +163,7 @@ export class AoC17 extends React.Component {
 			</div>
 			<div className="column">
 				<p>Result:</p>
-				<canvas ref="canvas" width={this.grid[0].length} height={this.grid.length} onLoad={e => this.updateCanvas()}/>
+				<canvas ref="canvas" width={this.grid[0].length} height={this.grid.length} />
 			</div>
 			<div className="column">
 				<p>Data:</p>
