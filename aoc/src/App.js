@@ -32,8 +32,8 @@ class App extends Component {
 		super(props);
 		
 		var s = new Solution(8, AoC8);
-		s.insert(new Solution(22, AoC22));
 		s.insert(new Solution(23, AoC23));
+		s.insert(new Solution(22, AoC22));
 		s.insert(new Solution(21, AoC21));
 		s.insert(new Solution(20, AoC20));
 		s.insert(new Solution(17, AoC17));

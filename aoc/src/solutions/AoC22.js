@@ -1,14 +1,13 @@
 import React from 'react';
 
 const pixel_size = 2;
-const x_scale = 35;
+const x_scale = 15;
 const y_scale = 1.1;
 const MAX_PATH = 10000;
 const Tools = { torch: 1, gear: 2, none: 3 };
 const Ground = { rocky: 0, wet: 1, narrow: 2 };
 const tools = [[Tools.torch, Tools.gear], [Tools.gear, Tools.none], [Tools.torch, Tools.none]];
 const toolName = ["", "torch", "gear", "none"];
-var log = false;
 
 class Distances {
 	constructor(map) {
@@ -36,10 +35,11 @@ class Distances {
 }
 
 class PathStep {
-	constructor(x, y, time, tool, from) {
+	constructor(x, y, time, min, tool, from) {
 		this.x = x;
 		this.y = y;
 		this.time = time;
+		this.min = min;
 		this.tool = tool;
 		this.from = from;
 	}
@@ -158,9 +158,10 @@ export class AoC22 extends React.Component {
 		var map = this.calculateMap(x, y, depth);
 		this.distances = new Distances(map);
 		var risk = this.risk(map, x, y);
-		this.paths = [new PathStep(0, 0, 0, Tools.torch)];
+		var minDistance = x + y;
+		this.paths = [new PathStep(0, 0, 0, minDistance, Tools.torch)];
 		this.distances.set(0, 0, Tools.torch, 0);
-		this.setState({ depth: depth, x: x, y: y, map: map, risk: risk, path: this.paths[0], iteration: 0 });
+		this.setState({ depth: depth, x: x, y: y, map: map, risk: risk, path: this.paths[0], iteration: 0, minDistance: minDistance });
 	}
 
 	calculateMap(x, y, d, x_s, y_s) {
@@ -189,47 +190,6 @@ export class AoC22 extends React.Component {
 			}
 		}
 		return sum;
-	}
-
-	iterate(x, y, map, times, iterations) {
-		var i = 0;
-		while (i++ < iterations && this.paths.length > 0 && (this.paths[0].x !== x || this.paths[0].y !== y || this.paths[0].tool !== Tools.torch)) {
-			var p = this.paths.shift();
-			// log = p.x === 8 && p.y === 12;
-			if (log) console.log(p);
-			if (p.x === x && p.y === y) {
-				p.tool = Tools.torch;
-				p.time += 7;
-				// this.paths = this.paths.filter(c => c.time <= p.time);
-				this.paths.push(p);
-			} else {
-				p.up(this.paths, map, times);
-				p.left(this.paths, map, times);
-				p.right(this.paths, map, times);
-				p.down(this.paths, map, times);
-			}
-			this.paths.sort((a, b) => a.time - b.time);
-			this.paths = this.paths.filter(p => p.time < 962);
-		}
-		console.log(i + " iterations");
-		console.log(this.paths);
-		return this.paths[0];
-	}
-
-	calculatePath(x, y, map) {
-		this.times = [];
-		for (var r = 0; r < map.length; r++) {
-			this.times[r] = [];
-			for (var c = 0; c < map[r].length; c++) {
-				this.times[r][c] = [];
-			}
-		}
-		var initial = new PathStep(0, 0, 0, Tools.torch, undefined);
-		var changeToGear = new PathStep(0, 0, 7, Tools.gear, initial);
-		this.times[0][0][Tools.torch] = initial;
-		this.times[0][0][Tools.gear] = changeToGear;
-		this.paths = [initial, changeToGear];
-		return this.iterate(x, y, map, this.times, 2/*00000*/);
 	}
 
 	componentDidUpdate() {
@@ -261,46 +221,53 @@ export class AoC22 extends React.Component {
 		ctx.putImageData(image, 0, 0);
 	}
 
+	newStep(path, x, y, tool, time, paths) {
+		this.distances.set(x, y, tool, time);
+		paths.push(new PathStep(x, y, time, time + Math.abs(this.state.x - x) + Math.abs(this.state.y - y), tool, path));
+	}
+
 	step(path, paths) {
 		var x = path.x;
 		var y = path.y;
 		var tool = path.tool;
 		var time = path.time;
 
-		if (path.y > 0 && this.distances.valid(x, y - 1, tool, time + 1)) {
-			this.distances.set(x, y - 1, tool, time + 1);
-			paths.push(new PathStep(x, y - 1, time + 1, tool, path));
-		}
-		if (path.x > 0 && this.distances.valid(x - 1, y, tool, time + 1)) {
-			this.distances.set(x - 1, y, tool, time + 1);
-			paths.push(new PathStep(x - 1, y, time + 1, tool, path));
-		}
-		if (path.x < this.state.map[y].length - 1 && this.distances.valid(x + 1, y, tool, time + 1)) {
-			this.distances.set(x + 1, y, tool, time + 1);
-			paths.push(new PathStep(x + 1, y, time + 1, tool, path));
-		}
-		if (path.y < this.state.map.length - 1 && this.distances.valid(x, y + 1, tool, time + 1)) {
-			this.distances.set(x, y + 1, tool, time + 1);
-			paths.push(new PathStep(x, y + 1, time + 1, tool, path));
-		}
+		if (path.y > 0 && this.distances.valid(x, y - 1, tool, time + 1))
+			this.newStep(path, x, y - 1, tool, time + 1, paths);
+		if (path.x > 0 && this.distances.valid(x - 1, y, tool, time + 1))
+			this.newStep(path, x - 1, y, tool, time + 1, paths);
+		if (path.x < this.state.map[y].length - 1 && this.distances.valid(x + 1, y, tool, time + 1))
+			this.newStep(path, x + 1, y, tool, time + 1, paths);
+		if (path.y < this.state.map.length - 1 && this.distances.valid(x, y + 1, tool, time + 1))
+			this.newStep(path, x, y + 1, tool, time + 1, paths);
 
 		var otherTool = tools[this.state.map[y][x]].find(t => t !== tool);
-		if (this.distances.valid(x, y, otherTool, time + 7)) {
-			this.distances.set(x, y, otherTool, time + 7);
-			paths.push(new PathStep(x, y, time + 7, otherTool, path));
-		}
+		if (this.distances.valid(x, y, otherTool, time + 7))
+			this.newStep(path, x, y, otherTool, time + 7, paths);
 	}
 
 	calculateNextIteration() {
-		var current = this.paths.filter(p => p.time === this.state.iteration);
-		current.forEach(p => this.step(p, this.paths));
-		this.paths = this.paths.filter(p => p.time > this.state.iteration);
-		var path = this.paths.find(p => p.x === this.state.x && p.y === this.state.y && p.tool === Tools.torch);
-		if (path !== undefined)
-			this.setState({ path: path, iteration: this.state.iteration + 1 });
-		else
-			this.setState({ /*path: this.paths[0],*/ iteration: this.state.iteration + 1 });
-		if (this.calculate && this.state.iteration < 1000)
+		var path, current;
+		var minDistance = this.state.minDistance;
+		var test = p => p.min === minDistance;
+		current = this.paths.filter(test);
+		while (current.length === 0) {
+			minDistance++;
+			current = this.paths.filter(test);
+		}
+		do {
+			this.paths = this.paths.filter(p => p.min > minDistance);
+			current.forEach(p => this.step(p, this.paths));
+			current = this.paths.filter(p => p.min === minDistance);
+			path = this.paths.find(p => p.x === this.state.x && p.y === this.state.y && p.tool === Tools.torch);
+		} while (path === undefined && current.length > 0);
+		if (path !== undefined) {
+			this.calculate = false;
+			this.setState({ path: path, iteration: this.state.iteration + 1, minDistance: minDistance });
+			return;
+		}
+		this.setState({ /*path: this.paths[0],*/ iteration: this.state.iteration + 1, minDistance: minDistance });
+		if (this.calculate && this.state.iteration < 10000)
 			window.setTimeout(() => this.calculateNextIteration(), 1);
 	}
 
@@ -323,13 +290,10 @@ export class AoC22 extends React.Component {
 				{this.state.risk && <p>Risk sum: {this.state.risk}</p>}
 				<p>Test 1: {this.state.test === undefined ? "Pending" : (this.state.test ? "OK" : "FAIL")}</p>
 				{this.state.path && <p>Path to: {this.state.path.x},{this.state.path.y}</p>}
+				<p>Minimum distance: {this.state.minDistance}</p>
 				<p>Iteration: {this.state.iteration}</p>
 				{this.state.path && <p>Path length: {this.state.path.toList().length}</p>}
 				{this.state.path && <p>Path time: {this.state.path.time}</p>}
-				{/*this.state.path && <input type="button" value="Step" onClick={e => {
-					var path = this.iterate(this.state.x, this.state.y, this.state.map, this.times, 50000);
-					this.setState({ path: path });
-				}} />*/}
 				<input type="button" value="Step" onClick={e => this.calculateNextIteration()} />
 				<input type="button" value="Go" onClick={e => this.startIteration()} />
 				<input type="button" value="Stop" onClick={e => this.stopIteration()} />
