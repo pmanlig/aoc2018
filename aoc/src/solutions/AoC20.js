@@ -25,7 +25,8 @@ class Grid {
     ];
 
     constructor(rooms) {
-
+			this.rooms = rooms; // Dummy
+			this.current = new Room(0,0); // Dummy
     }
 }
 
@@ -70,7 +71,9 @@ export class AoC20 extends React.Component {
         txt = txt.split('$')[0]
         var i = 0, x = 0, y = 0;
         while (i < txt.length) {
-            i++;
+						i++;
+						x=y; // Dummy
+						y=x; // Dummy
         }
         this.setState({ grid: new Grid() });
     }

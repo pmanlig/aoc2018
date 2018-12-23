@@ -9,6 +9,7 @@ import { AoC17 } from './solutions/AoC17';
 import { AoC20 } from './solutions/AoC20';
 import { AoC21 } from './solutions/AoC21';
 import { AoC22 } from './solutions/AoC22';
+import { AoC23 } from './solutions/AoC23';
 
 class Solution {
 	constructor(d,c) {
@@ -32,6 +33,7 @@ class App extends Component {
 		
 		var s = new Solution(8, AoC8);
 		s.insert(new Solution(22, AoC22));
+		s.insert(new Solution(23, AoC23));
 		s.insert(new Solution(21, AoC21));
 		s.insert(new Solution(20, AoC20));
 		s.insert(new Solution(17, AoC17));
